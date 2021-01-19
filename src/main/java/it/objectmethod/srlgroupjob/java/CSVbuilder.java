@@ -20,14 +20,13 @@ public class CSVbuilder {
 				}
 					csvOutput += param + ",";
 			}
-			csvOutput.substring(0,csvOutput.length()-1);
+			csvOutput = csvOutput.substring(0,csvOutput.length()-1);
 			csvOutput +="\n";
 		}
 		try {
 			outstream.write(csvOutput.getBytes());
 			outstream.flush();
 			outstream.close();
-
 		}
 
 		catch (IOException e) {

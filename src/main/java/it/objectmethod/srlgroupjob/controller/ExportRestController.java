@@ -97,22 +97,4 @@ public class ExportRestController {
 		
 	}
 
-	public void downloadBorderaux(HttpServletResponse response, List<String> listaIdBor) {
-
-		response.setContentType("application/csv");
-
-		response.addHeader("Content-Disposition", "attachment; filename=borderaux.csv");
-
-		try {
-			
-			OutputStream outPutStream = response.getOutputStream();
-			serviceBorder.buildCSV(listaIdBor, outPutStream);
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
 }

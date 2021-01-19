@@ -73,14 +73,35 @@ table {
 	
 }
 
-.switch-pages {
-	position: relative;
+#pageInput {
+	width: 50%;
+	min-width: 30px;
 }
 
 .back-forward {
-	backgroung-color: black;
-	width: 20%;
 	margin: 4px auto 2px auto;
+	display: flex;
+	justify-content: space-between;
+	width: 65%;
+	min-width: 50%;
+}
+
+.switch-pages {
+	position: relative;
+	height: 50%;
+	margin: auto, auto, auto, auto;
+}
+
+.number-pages {
+	display: flex;
+	display-direction: row;
+	flex-grow: 3;
+	justify-content: space-between;
+}
+
+.pageButtons {
+	background: none;
+	border: none;
 }
 </style>
 
@@ -97,6 +118,16 @@ table {
 		var table = document.getElementById("table");
 		var bodyT = "<table><tr><th><input type=\"checkbox\" onclick=\"getThemAll(this)\"></th><th><p>data</p></th><th><p>note</p></th><th><p>codice</p></th><th><p>localita</p></th><th><p>indirizzo</p></th><th><p>provincia</p></th><th><p>cap</p></th><th><p>ragione<br> sociale</p></th><th><p>ragione<br> soc 2</p></th><th><p>aspetto</p></th><th><p>peso</p></th></tr>";
 
+		console.log("tablebuilder, pagSelected= "+pagSelected);
+		
+		if(pagSelected > insiemePagine.length-1){
+			pagSelected = insiemePagine.length;
+		} else if (pagSelected < 0){
+			pagSelected=0;
+		}
+
+		console.log("tablebuilder, pagSelectedCorrection= "+pagSelected);
+		
 		if(insiemePagine != 0){
 		
 		insiemePagine[pagSelected].forEach(function(documento){
@@ -154,6 +185,9 @@ table {
 				}
 				
 			}
+			
+			numberPages();
+			
 		}
 	}
 	
@@ -188,17 +222,18 @@ table {
 	
 
 
-	async function changePage(pval){
-		console.log("inizio");
+	function changePage(pval){
 		if(pval == 1){
 			if(pagSelected != insiemePagine.length){
-				pagSelected += pval;
+				pagSelected=parseInt(pagSelected,10) + pval;
+				numberPages();
 				tableBuilder();
 			}
 		}
 		else if(pval == -1){
 			if(pagSelected != 0){
-				pagSelected += pval;
+				pagSelected=parseInt(pagSelected + pval,10);
+				numberPages();
 				tableBuilder();
 			}
 		}
@@ -251,8 +286,6 @@ table {
 				counter++;
 			});
 		
-		
-		
 		if(task == "GEN"){
 			url+= "task=GEN";
 			console.log(url);
@@ -278,6 +311,102 @@ table {
 		}
 
 	}
+	
+	function numberPages(){
+		var insPagView = document.getElementsByClassName("number-pages");
+		console.log("numberPages,numero pagine: "+insiemePagine.length);
+		counter=0;
+		if(insiemePagine != 0){
+			var insPagBody = new Array();
+			
+			if(insiemePagine.length <= 7){
+				
+				insiemePagine.forEach(function(){
+					insPagBody += "<button onclick=\"pageButtonClick()\" id=\""+counter+"\" class=\"pageButtons\">"+(counter+1)+"</button>";
+					counter++;
+				});
+				
+				insPagView[0].innerHTML= insPagBody;
+				insPagView[1].innerHTML= insPagBody;
+				
+			} else {
+				
+				var running = true;
+				var i = 0;
+				while(running){
+					let end = parseInt(insiemePagine.length,10);
+					let endMinCurrent = end-parseInt(pagSelected,10);
+					let current = parseInt(pagSelected,10);
+					
+					let oneOfTen = Math.round(parseInt(current/10,10));
+					let middle = Math.round(parseInt(current/2,10));
+					let oneOfTenCEnd = current+Math.round(parseInt(endMinCurrent/10,10));
+					let middleCloseEnd = current+Math.round(parseInt(endMinCurrent/2,10));
+					
+					console.log("numberPages, end= "+end);
+					console.log("numberPages, Current= "+current);
+					console.log("numberPages, oneOfTenCEnd= "+oneOfTenCEnd);
+					console.log("numberPages, middleCloseEnd= "+middleCloseEnd);
+					
+					if(i==0||i==6){
+						if(i==0){
+							insPagBody += "<button onclick=\"pageButtonClick()\" id=\""+0+"\" class=\"pageButtons\">"+1+"</button>";
+						}else{
+							insPagBody += "<button onclick=\"pageButtonClick()\" id=\""+end+"\" class=\"pageButtons\">"+(end+1)+"</button>";
+							running = false;
+						}
+					}
+					else if(i==1||i==5){
+						if(i==1){
+							insPagBody += "<button onclick=\"pageButtonClick()\" id=\""+(oneOfTen)+"\" class=\"pageButtons\">"+(oneOfTen+1)+"</button>";
+						}else{
+							insPagBody += "<button onclick=\"pageButtonClick()\" id=\""+(middleCloseEnd)+"\" class=\"pageButtons\">"+(middleCloseEnd+1)+"</button>";
+							}
+					}
+					else if(i==2||i==4){
+						if(i==2){
+							insPagBody += "<button onclick=\"pageButtonClick()\" id=\""+(middle)+"\" class=\"pageButtons\">"+(middle+1)+"</button>";
+						}else{	
+							insPagBody += "<button onclick=\"pageButtonClick()\" id=\""+(oneOfTenCEnd)+"\" class=\"pageButtons\">"+(oneOfTenCEnd+1)+"</button>";
+							}
+					}else if(i==3){
+						let insidePBody = parseInt(pagSelected,10)+1;
+						insPagBody += "<p style=\"weight:400; -webkit-text-stroke: 2px white;\">"+insidePBody+"</p>";
+					}
+					
+					i++;
+				}
+					insPagView[0].innerHTML= insPagBody;
+					insPagView[1].innerHTML= insPagBody;
+				
+			}
+			
+		} else{
+			console.log("insiemepagine vuoto");
+		}
+		
+	}
+	
+	function getText(){
+		setPagina(parseInt(document.getElementById("pageInput").value,10)-1);
+	}
+	
+	function setPagina(idNumber){
+		console.log("setpagina, idnumber= "+idNumber);
+		pagSelected = idNumber;
+		numberPages();
+		tableBuilder();
+	}
+	
+	function pageButtonClick(){
+
+		$('button.pageButtons').click(function() {
+		    setPagina(this.id);
+		});
+		
+	}
+	
+	
 </script>
 
 </head>
@@ -311,20 +440,31 @@ table {
 				onclick="genera()">
 		</div>
 		<div class="border-container">
+
+			<div style="float: right;">
+				<input id="pageInput" type="text">
+				<button onclick="getText()">Inserisci</button>
+			</div>
+
+			<div class="back-forward">
+				<button class="switch-pages" onclick="pageBack()">indietro</button>
+				<div class="number-pages"></div>
+				<button class="switch-pages" onclick="pageForward()">avanti</button>
+			</div>
+
 			<div class="container">
 
 				<div id="table"></div>
 
 			</div>
-
 			<div class="back-forward">
 				<button class="switch-pages" onclick="pageBack()">indietro</button>
-				<button class="switch-pages" onclick="pageForward()"
-					style="float: right;">avanti</button>
+				<div class="number-pages"></div>
+				<button class="switch-pages" onclick="pageForward()">avanti</button>
 			</div>
 		</div>
 	</div>
 	<script> let form = document.getElementById("formEx");
-		 form.style.visibility = "hidden"</script>
+		 form.style.visibility = "hidden";</script>
 </body>
 </html>
